@@ -5,6 +5,35 @@ import toast from 'react-hot-toast';
 import { formatDateTime } from '../utils/helpers';
 import { profileApi } from '../api/profileApi';
 
+const compressImage = (file, maxWidth = 1080) => {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = event => {
+      const img = new Image();
+      img.src = event.target.result;
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob((blob) => {
+          resolve(new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", { type: 'image/jpeg', lastModified: Date.now() }));
+        }, 'image/jpeg', 0.85);
+      };
+      img.onerror = () => resolve(file);
+    };
+    reader.onerror = () => resolve(file);
+  });
+};
+
 /* ── Post Composer ─────────────────────────────────────── */
 const Composer = ({ onPosted }) => {
   const { user } = useAuth();
@@ -44,7 +73,13 @@ const Composer = ({ onPosted }) => {
     try {
       const formData = new FormData();
       formData.append('content_text', content);
-      if (image) formData.append('media', image);
+      
+      let finalMedia = image;
+      if (image && image.type?.startsWith('image/')) {
+        finalMedia = await compressImage(image);
+      }
+      if (finalMedia) formData.append('media', finalMedia);
+      
       if (tags.trim()) {
         const tagArray = tags.split(',').map(t => t.trim().replace('#', '')).filter(Boolean);
         tagArray.forEach(t => formData.append('tags[]', t));
@@ -450,13 +485,14 @@ const PostCard = ({ post, style, onSaveToggle, onFollowChange }) => {
         </p>
 
         {post.media_url && (
-          <div className="mt-4 rounded-2xl overflow-hidden border border-outline-variant/10">
-            {post.media_url.match(/\.(mp4|webm|ogg)$|pexels/i) ? (
+          <div className="mt-4 rounded-2xl overflow-hidden border border-outline-variant/10 bg-black/5 flex justify-center">
+            {post.media_url.match(/\.(mp4|webm|ogg)$|pexels|\/video\/upload/i) ? (
               <video
                 src={post.media_url}
                 controls
-                className="w-full h-auto max-h-[500px] bg-black"
-                poster="/video-placeholder.jpg"
+                playsInline
+                preload="metadata"
+                className="w-full h-auto max-h-[600px] object-contain rounded-2xl"
               >
                 Your browser does not support the video tag.
               </video>

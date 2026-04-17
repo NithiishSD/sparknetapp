@@ -28,7 +28,10 @@ const EditProfile = () => {
           interests: profile.interests?.join(', ') || '',
         });
         if (profile.avatar) {
-          setPreview(`${import.meta.env.VITE_API_URL}${profile.avatar}`);
+          const avatarUrl = profile.avatar.startsWith('http')
+            ? profile.avatar
+            : `${import.meta.env.VITE_API_URL ?? ''}${profile.avatar}`;
+          setPreview(avatarUrl);
         }
       } catch (err) {
         toast.error('Failed to load profile data');

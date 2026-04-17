@@ -103,11 +103,14 @@ export const ProfilePage = () => {
           {/* Avatar */}
           <div className="relative shrink-0">
             <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-surface-container-highest bg-surface-container-lowest flex items-center justify-center text-on-surface font-headline font-black text-4xl shadow-[0_0_40px_rgba(173,198,255,0.15)]">
-              {profile?.avatar
-                ? <img src={`${import.meta.env.VITE_API_URL ?? ''}${profile.avatar}`} alt="avatar" className="w-full h-full object-cover" />
-                : (user?.oauthAvatarUrl
-                    ? <img src={user.oauthAvatarUrl} alt="avatar" className="w-full h-full object-cover" />
-                    : avatarL)
+              {(profile?.avatar || user?.oauthAvatarUrl)
+                ? <img
+                    src={profile?.avatar?.startsWith('http') ? profile.avatar : (user?.oauthAvatarUrl ?? '')}
+                    alt="avatar"
+                    className="w-full h-full object-cover"
+                    onError={e => { e.target.style.display = 'none'; }}
+                  />
+                : avatarL
               }
             </div>
             {user?.isEmailVerified && (
