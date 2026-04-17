@@ -1,0 +1,84 @@
+/* =========================================================
+   SparkNet Global Design System — v3: Kinetic Observatory
+   Fonts: Inter (body) + Space Grotesk (display/headline)
+   Theme: Deep Slate, Glassmorphism, Neon Blue Accents
+   ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html {
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: #2d3449 #0b1326;
+  }
+
+  body {
+    background-color: theme('colors.background') !important;
+    color: theme('colors.on-background') !important;
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, h4, h5, h6, .font-headline {
+    font-family: 'Space Grotesk', sans-serif;
+    letter-spacing: -0.02em;
+  }
+}
+
+@layer components {
+  /* Material Icons config */
+  .material-symbols-outlined { 
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; 
+  }
+
+  /* Glassmorphism helpers */
+  .glass-card { 
+    background: rgba(45, 52, 73, 0.4); 
+    backdrop-filter: blur(20px); 
+  }
+
+  /* Status Indicators ("The Pulse") */
+  .pulse-dot { 
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; 
+  }
+
+  /* Inputs — Soft Inner Glow Focus */
+  .input-base {
+    @apply w-full bg-surface-container-lowest border-none py-3 px-4 rounded-xl text-sm text-on-surface placeholder:text-slate-500 focus:ring-1 focus:ring-primary/40 transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)];
+    outline: none;
+  }
+
+  /* Custom Scrollbar applied to specific containers */
+  .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background: theme('colors.surface-container-highest'); border-radius: 10px; }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: theme('colors.primary'); }
+
+  /* Buttons */
+  .btn-primary {
+    @apply bg-gradient-to-r from-primary to-primary-container text-on-primary-container font-bold py-3 px-6 rounded-lg text-[11px] uppercase tracking-widest shadow-[0_4px_20px_rgba(173,198,255,0.15)] active:scale-95 transition-transform;
+  }
+  
+  .btn-secondary {
+    @apply bg-transparent text-primary border border-outline-variant/30 hover:bg-primary/10 font-bold py-3 px-6 rounded-lg text-[11px] uppercase tracking-widest active:scale-95 transition-colors;
+  }
+}
+
+/* ── Scrollbar globals ─────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: theme('colors.background'); }
+::-webkit-scrollbar-thumb { background: theme('colors.surface-container-highest'); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: theme('colors.primary'); }
+
+/* ── Animations ─────────────────────────────────────────── */
+.page-enter  { animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
