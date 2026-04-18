@@ -15,6 +15,8 @@ export const ChallengeDetailsPage = () => {
   const [isJoining, setIsJoining] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [votingFor, setVotingFor] = useState(null);
+  const [isClosing, setIsClosing] = useState(false);
+  const [isTerminating, setIsTerminating] = useState(false);
 
   const fetchChallengeData = async () => {
     try {
@@ -78,6 +80,35 @@ export const ChallengeDetailsPage = () => {
     }
   };
 
+  const handleCloseMission = async () => {
+    if (!window.confirm('Are you sure you want to complete this mission and award points?')) return;
+    setIsClosing(true);
+    try {
+      await api.patch(`/challenges/${id}/close`);
+      toast.success('Mission completed and rewards distributed!');
+      fetchChallengeData();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to close mission');
+    } finally {
+      setIsClosing(false);
+    }
+  };
+
+  const handleTerminateMission = async () => {
+    const reason = window.prompt('Enter termination reason (optional):');
+    if (reason === null) return;
+    setIsTerminating(true);
+    try {
+      await api.patch(`/challenges/${id}/terminate`, { reason });
+      toast.success('Mission terminated.');
+      fetchChallengeData();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to terminate mission');
+    } finally {
+      setIsTerminating(false);
+    }
+  };
+
   if (loading) {
      return <div className="max-w-5xl mx-auto py-20 text-center text-slate-400 font-headline uppercase font-bold text-[11px] tracking-widest">Loading mission data...</div>;
   }
@@ -93,6 +124,11 @@ export const ChallengeDetailsPage = () => {
   const isJoined = challenge.participants?.some(userIdMatches);
   const participant = challenge.participants?.find(userIdMatches);
   const hasSubmitted = !!participant?.entry;
+  
+  const isCreator = challenge.createdBy === (user?._id || user?.id);
+  const isAdmin = user?.role === 'admin';
+  const canManage = (isCreator || isAdmin) && challenge.status === 'active';
+  const isActive = challenge.status === 'active';
 
   return (
     <div className="max-w-5xl mx-auto space-y-8 page-enter py-8 px-4 sm:px-6">
@@ -125,22 +161,73 @@ export const ChallengeDetailsPage = () => {
                 <span className="text-[10px] uppercase tracking-widest font-bold text-primary mb-1 block">Mission Objective</span>
                 <p className="text-slate-400 max-w-2xl text-lg leading-relaxed">{challenge.description}</p>
               </div>
+
+              {challenge.status === 'completed' && challenge.winner && (
+                <div className="mt-6 flex items-center gap-4 p-4 bg-success-container/10 border border-success/20 rounded-2xl w-fit">
+                  <div className="w-12 h-12 rounded-full bg-success/20 flex items-center justify-center text-success">
+                    <span className="material-symbols-outlined text-3xl">workspace_premium</span>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-headline font-black text-success uppercase tracking-[0.2em]">Mission Champion</p>
+                    <p className="text-on-surface font-headline font-bold text-lg">{challenge.winner.username || 'Unknown Operator'}</p>
+                  </div>
+                </div>
+              )}
             </div>
-            {!isJoined ? (
-              <button 
-                onClick={handleJoin}
-                disabled={isJoining}
-                className="btn-primary px-10 py-4 w-full md:w-auto shrink-0 shadow-[0_0_20px_rgba(173,198,255,0.2)] text-base flex items-center justify-center gap-2 disabled:opacity-50"
-              >
-                <span className="material-symbols-outlined text-[20px]">add_task</span>
-                {isJoining ? 'Engaging...' : 'Engage Mission'}
-              </button>
-            ) : (
-              <div className="px-10 py-4 rounded-full bg-surface-container-highest border border-primary/30 text-primary font-headline font-bold flex items-center gap-2">
-                <span className="material-symbols-outlined">check_circle</span>
-                Mission Active
-              </div>
-            )}
+
+            <div className="flex flex-col gap-3">
+              {isActive ? (
+                <>
+                  {!isJoined ? (
+                    <button 
+                      onClick={handleJoin}
+                      disabled={isJoining}
+                      className="btn-primary px-10 py-4 w-full md:w-auto shrink-0 shadow-[0_0_20px_rgba(173,198,255,0.2)] text-base flex items-center justify-center gap-2 disabled:opacity-50"
+                    >
+                      <span className="material-symbols-outlined text-[20px]">add_task</span>
+                      {isJoining ? 'Engaging...' : 'Engage Mission'}
+                    </button>
+                  ) : (
+                    <div className="px-10 py-4 rounded-full bg-surface-container-highest border border-primary/30 text-primary font-headline font-bold flex items-center gap-2">
+                      <span className="material-symbols-outlined">check_circle</span>
+                      Mission Active
+                    </div>
+                  )}
+
+                  {canManage && (
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={handleCloseMission}
+                        disabled={isClosing}
+                        className="flex-1 btn-secondary py-3 px-4 border-success/30 text-success hover:bg-success/10 flex items-center justify-center gap-2"
+                      >
+                        <span className="material-symbols-outlined text-sm">done_all</span>
+                        {isClosing ? 'Closing...' : 'Complete'}
+                      </button>
+                      <button 
+                        onClick={handleTerminateMission}
+                        disabled={isTerminating}
+                        className="flex-1 btn-secondary py-3 px-4 border-error/30 text-error hover:bg-error/10 flex items-center justify-center gap-2"
+                      >
+                        <span className="material-symbols-outlined text-sm">cancel</span>
+                        {isTerminating ? 'Terminating...' : 'Terminate'}
+                      </button>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className={`px-10 py-4 rounded-full font-headline font-bold flex items-center gap-2 border ${
+                  challenge.status === 'completed' 
+                    ? 'bg-success-container/10 border-success/30 text-success' 
+                    : 'bg-error-container/10 border-error/30 text-error'
+                }`}>
+                  <span className="material-symbols-outlined">
+                    {challenge.status === 'completed' ? 'verified' : 'block'}
+                  </span>
+                  Mission {challenge.status ? (challenge.status.charAt(0).toUpperCase() + challenge.status.slice(1)) : 'Active'}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -171,7 +258,7 @@ export const ChallengeDetailsPage = () => {
               <span className="material-symbols-outlined text-tertiary-fixed">code_blocks</span>
               Current Cycle Deployment
             </h3>
-            {isJoined && !hasSubmitted ? (
+            {isActive && isJoined && !hasSubmitted ? (
                <>
                  <textarea 
                    className="input-base w-full min-h-[160px] mb-6 font-mono text-sm leading-relaxed"
@@ -198,10 +285,15 @@ export const ChallengeDetailsPage = () => {
                  <p className="text-sm text-slate-400 mt-1">Your entry has been processed and scored. Waiting for peer reviews.</p>
                  <p className="text-sm text-tertiary font-bold mt-4">Current Score: {participant.score}</p>
                </div>
-            ) : (
+            ) : isActive ? (
                <div className="bg-surface-container-highest rounded-2xl p-6 text-center">
                  <p className="text-slate-400 mt-1">You must Engage Mission before resolving.</p>
                </div>
+            ) : (
+                <div className="bg-surface-container-highest rounded-2xl p-6 text-center">
+                  <span className="material-symbols-outlined text-4xl text-slate-500 mb-2">event_busy</span>
+                  <p className="text-slate-400 mt-1">Mission is no longer accepting deployments.</p>
+                </div>
             )}
           </div>
         </div>

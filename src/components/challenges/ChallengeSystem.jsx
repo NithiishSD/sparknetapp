@@ -10,7 +10,7 @@ export const ProgressBar = ({ progress, label }) => (
       </div>
     )}
     <div className="h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden shadow-inner">
-      <div 
+      <div
         className="h-full bg-primary rounded-full transition-all duration-1000 ease-out relative"
         style={{ width: `${progress}%` }}
       >
@@ -26,33 +26,41 @@ export const ChallengeCard = ({ challenge, isJoined }) => (
     {/* Decorative Gradient Glow */}
     <div className="absolute top-0 right-0 w-40 h-40 bg-primary/10 rounded-full blur-[60px] group-hover:bg-primary/20 transition-all duration-700 -translate-y-1/3 translate-x-1/3"></div>
     <div className="absolute bottom-0 left-0 w-32 h-32 bg-tertiary/5 rounded-full blur-[50px] group-hover:bg-tertiary/10 transition-all duration-700 translate-y-1/2 -translate-x-1/2"></div>
-    
-    <div className="absolute top-6 right-6 z-10">
+
+    <div className="absolute top-20 right-6 z-10 flex flex-col m-4 items-end gap-2">
       <div className="px-4 py-1.5 rounded-full bg-surface-container-highest/80 border border-outline-variant/20 text-[11px] font-headline font-black text-primary uppercase tracking-[0.15em] backdrop-blur-md shadow-lg flex items-center gap-2">
-        <span className="material-symbols-outlined text-[14px]">local_fire_department</span>
+        <span className="material-symbols-outlined text-[14px] ">local_fire_department</span>
         {challenge.points} PTS
       </div>
+      {challenge.status && challenge.status !== 'active' && (
+        <div className={`px-4 py-1.5 rounded-full border text-[10px] font-headline font-bold uppercase tracking-widest backdrop-blur-md shadow-lg ${challenge.status === 'completed'
+          ? 'bg-success-container/20 border-success/30 text-success'
+          : 'bg-error-container/20 border-error/30 text-error'
+          }`}>
+          {challenge.status}
+        </div>
+      )}
     </div>
-    
-    <div className="relative z-10">
-      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-surface-container-highest to-surface-container border border-outline-variant/20 flex items-center justify-center text-4xl mb-8 shadow-xl group-hover:scale-110 transition-all duration-500 group-hover:shadow-primary/20 group-hover:border-primary/30">
+
+    <div className="relative z-10 relative -top-5 mb-10">
+      <div className=" h-16 rounded-2xl bg-gradient-to-br from-surface-container-highest to-surface-container border border-outline-variant/20 flex items-center justify-center text-4xl mb-8 shadow-xl group-hover:scale-110 transition-all duration-500 group-hover:shadow-primary/20 group-hover:border-primary/30">
         {challenge.icon || <span className="material-symbols-outlined text-3xl text-primary">emoji_events</span>}
       </div>
-      
+
       {/* Heading with fix for overflow */}
-      <h3 className="font-headline font-black text-2xl text-on-surface mb-3 tracking-tighter leading-tight group-hover:text-primary transition-colors pr-2">
+      <h3 className="font-headline font-black text-2xl text-on-surface mb-3 mt-20 tracking-tighter leading-tight group-hover:text-primary transition-colors pr-2">
         {challenge.title}
       </h3>
-      
+
       <p className="text-sm text-slate-400 mb-10 flex-1 leading-relaxed font-medium opacity-80 line-clamp-3">
         {challenge.description}
       </p>
-      
+
       <div className="pt-2 border-t border-outline-variant/5">
         {isJoined ? (
           <div className="space-y-6">
             <ProgressBar progress={challenge.progress || 0} label="Completion Status" />
-            <Link 
+            <Link
               to={`/challenges/${challenge._id || challenge.id}`}
               className="btn-secondary w-full text-center flex items-center justify-center gap-3 py-4 rounded-2xl border-primary/10 hover:border-primary/30 transition-all"
             >
@@ -61,7 +69,7 @@ export const ChallengeCard = ({ challenge, isJoined }) => (
             </Link>
           </div>
         ) : (
-          <Link 
+          <Link
             to={`/challenges/${challenge._id || challenge.id}`}
             className="btn-primary w-full text-center flex items-center justify-center gap-3 py-4 rounded-2xl shadow-[0_8px_30px_rgba(173,198,255,0.2)] hover:shadow-primary/40 hover:scale-[1.02] active:scale-95 transition-all duration-300 overflow-hidden relative"
           >
@@ -89,17 +97,16 @@ export const LeaderboardTable = ({ entries, onVote, votingFor, currentUserId }) 
       </thead>
       <tbody className="divide-y divide-outline-variant/5">
         {entries.map((entry, idx) => (
-          <tr 
-            key={entry._id || entry.id} 
+          <tr
+            key={entry._id || entry.id}
             className="hover:bg-primary/5 transition-all duration-300 group"
           >
             <td className="px-8 py-6">
-              <span className={`font-headline font-black text-2xl ${
-                idx === 0 ? 'text-tertiary-fixed drop-shadow-[0_0_15px_rgba(255,218,102,0.4)] scale-110 inline-block' : 
-                idx === 1 ? 'text-slate-300 drop-shadow-[0_0_10px_rgba(203,213,225,0.2)]' : 
-                idx === 2 ? 'text-orange-300/80' : 
-                'text-slate-600'
-              }`}>
+              <span className={`font-headline font-black text-2xl ${idx === 0 ? 'text-tertiary-fixed drop-shadow-[0_0_15px_rgba(255,218,102,0.4)] scale-110 inline-block' :
+                idx === 1 ? 'text-slate-300 drop-shadow-[0_0_10px_rgba(203,213,225,0.2)]' :
+                  idx === 2 ? 'text-orange-300/80' :
+                    'text-slate-600'
+                }`}>
                 {idx === 0 ? (
                   <span className="flex items-center gap-3"><span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'FILL' 1" }}>stars</span> I</span>
                 ) : (
@@ -119,20 +126,20 @@ export const LeaderboardTable = ({ entries, onVote, votingFor, currentUserId }) 
               </div>
             </td>
             <td className="px-8 py-6 text-right">
-              <span className="font-headline font-black text-primary px-4 py-2 rounded-xl bg-primary/10 border border-primary/20 tracking-tighter inline-block shadow-inner group-hover:scale-105 transition-transform">
-                {entry.score}
+              <span className="font-headline font-black text-primary px-3 sm:px-4 py-2 rounded-xl bg-primary/10 border border-primary/20 tracking-tighter inline-flex items-center justify-center min-w-[3rem] shadow-inner group-hover:scale-105 transition-transform">
+                {entry.score >= 1000 ? `${(entry.score / 1000).toFixed(1)}k` : entry.score}
               </span>
             </td>
             {onVote && (() => {
               const entryUserId = entry.user?._id || entry.userId;
               const isOwnEntry = String(entryUserId) === String(currentUserId);
               return (
-                <td className="px-8 py-6 text-right">
+                <td className="px-8 py-6 text-right min-w-[140px]">
                   {!isOwnEntry && (
                     <button
                       onClick={() => onVote(entryUserId)}
                       disabled={votingFor === entryUserId}
-                      className="px-5 py-2.5 rounded-xl bg-primary/10 text-primary border border-primary/20 text-[10px] font-black font-headline uppercase tracking-widest hover:bg-primary hover:text-on-primary transition-all duration-300 disabled:opacity-50 shadow-sm"
+                      className="whitespace-nowrap px-4 sm:px-5 py-2.5 rounded-xl bg-primary/10 text-primary border border-primary/20 text-[10px] font-black font-headline uppercase tracking-widest hover:bg-primary hover:text-on-primary transition-all duration-300 disabled:opacity-50 shadow-sm"
                     >
                       {votingFor === entryUserId ? '...' : 'Signal Support'}
                     </button>

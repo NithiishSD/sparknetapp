@@ -218,7 +218,7 @@ const Composer = ({ onPosted }) => {
 };
 
 /* ── CommentItem ─────────────────────────────────────────── */
-const CommentItem = ({ comment, onReply, depth = 0 }) => {
+const CommentItem = ({ comment, onReply, isPostOwner, depth = 0 }) => {
   const [showReplyInput, setShowReplyInput] = useState(false);
   const [replyText, setReplyText] = useState('');
   const [showReplies, setShowReplies] = useState(false);
@@ -255,7 +255,7 @@ const CommentItem = ({ comment, onReply, depth = 0 }) => {
           </p>
           
           <div className="flex items-center gap-4">
-            {depth === 0 && (
+            {depth === 0 && isPostOwner && (
               <button 
                 onClick={() => setShowReplyInput(!showReplyInput)}
                 className="text-[10px] uppercase tracking-widest font-bold text-slate-500 hover:text-primary transition-colors flex items-center gap-1"
@@ -301,7 +301,7 @@ const CommentItem = ({ comment, onReply, depth = 0 }) => {
       </div>
 
       {showReplies && replies.map(reply => (
-        <CommentItem key={reply._id} comment={reply} onReply={onReply} depth={depth + 1} />
+        <CommentItem key={reply._id} comment={reply} onReply={onReply} isPostOwner={isPostOwner} depth={depth + 1} />
       ))}
     </div>
   );
@@ -654,6 +654,7 @@ const PostCard = ({ post, style, onSaveToggle, onFollowChange }) => {
                   key={c._id ?? i} 
                   comment={c} 
                   onReply={handleReplyComment} 
+                  isPostOwner={isOwner}
                 />
               ))}
             </div>
