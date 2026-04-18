@@ -412,7 +412,7 @@ const PostCard = ({ post, style, onSaveToggle, onFollowChange }) => {
     if (!reportReason.trim()) return toast.error('Please provide a reason');
     setReporting(true);
     try {
-      await postApi.reportPost(post._id ?? post.id, reportReason, reportCategory);
+      await postApi.reportPost(post._id ?? post.id, reportReason, 'post', reportCategory);
       toast.success('Report submitted. Thank you!');
       setShowReport(false);
       setReportReason('');

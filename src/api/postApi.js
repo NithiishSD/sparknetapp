@@ -26,7 +26,8 @@ export const postApi = {
   addComment: (postId, content) => api.post('/posts/comment', { postId, content }),
   replyToComment: (commentId, content) => api.post(`/posts/comments/${commentId}/reply`, { content }),
   getReplies: (commentId) => api.get(`/posts/comments/${commentId}/replies`),
-  reportPost: (target_id, reason, type = 'post') => api.post('/posts/report', { target_id, type, reason }),
+  reportPost: (target_id, reason, type = 'post', category = '') => 
+    api.post('/posts/report', { target_id, type, reason: category ? `${category}: ${reason}` : reason }),
   deleteComment: (commentId) => api.delete(`/posts/comments/${commentId}`),
   
   // User specific
